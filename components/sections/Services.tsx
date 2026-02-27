@@ -66,8 +66,8 @@ const Services = () => {
                                     <p className="text-white/50 leading-relaxed font-medium mb-6">
                                         {service.description}
                                     </p>
-                                    <Link href="#contact" className="inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] group/link">
-                                        Inquire <ArrowUpRight size={14} className="group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-all" />
+                                    <Link href="/hire" className="inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] group/link">
+                                        View Packages <ArrowUpRight size={14} className="group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-all" />
                                     </Link>
                                 </div>
                             </div>

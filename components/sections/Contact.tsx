@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Section from "../Section";
-import { Mail, Instagram, MessageCircle, Check } from "lucide-react";
+import { Mail, Instagram, MessageCircle, Check, Github } from "lucide-react";
 import Link from "next/link";
 
 const Contact = () => {
@@ -63,17 +63,20 @@ const Contact = () => {
 
                         <div className="flex items-center gap-12 justify-center">
                             {[
-                                { label: "Instagram", icon: Instagram },
-                                { label: "X / Twitter", icon: () => <span className="font-bold">𝕏</span> },
-                                { label: "LinkedIn", icon: () => <span className="font-bold">in</span> }
-                            ].map((social, i) => (
+                                { label: "Instagram", Icon: Instagram, href: "https://instagram.com/snehalfulluke" },
+                                { label: "LinkedIn", Icon: (props: any) => <span {...props} className="font-bold">in</span>, href: "https://linkedin.com/in/snehalfulluke" },
+                                { label: "GitHub", Icon: Github, href: "https://github.com/snehalfulluke" }
+                            ].map(({ label, Icon, href }, i) => (
                                 <Link
                                     key={i}
-                                    href="#"
+                                    href={href}
+                                    target="_blank"
                                     className="flex flex-col items-center gap-3 text-white/30 hover:text-white transition-all group/social"
                                 >
-                                    <div className="text-xl group-hover/social:scale-125 transition-transform duration-500"><social.icon size={20} /></div>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">{social.label}</span>
+                                    <div className="text-xl group-hover/social:scale-125 transition-transform duration-500">
+                                        <Icon size={20} />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">{label}</span>
                                 </Link>
                             ))}
                         </div>

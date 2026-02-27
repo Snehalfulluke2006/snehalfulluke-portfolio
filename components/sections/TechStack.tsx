@@ -22,7 +22,7 @@ const TechStack = () => {
         <Section id="skills">
             <div className="container mx-auto px-6">
                 <div className="flex flex-col lg:flex-row gap-20 items-start">
-                    <div className="lg:w-1/3 sticky top-32">
+                    <div className="lg:w-1/3 lg:sticky lg:top-32">
                         <h2 className="text-xs font-black tracking-[0.3em] uppercase text-indigo-500 mb-6">Expertise</h2>
                         <h3 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-8">
                             A powerful <span className="text-white/40">toolkit.</span>

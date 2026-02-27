@@ -7,6 +7,8 @@ import CustomCursor from "@/components/CustomCursor";
 import LoadingScreen from "@/components/LoadingScreen";
 import ScrollProgress from "@/components/ScrollProgress";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,19 +17,34 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Snehal Fulluke | Senior Developer & Visual Artist",
-  description: "Senior App Developer, Game Creator, Photographer & Video Editor. Crafting high-fidelity digital experiences.",
-  metadataBase: new URL("https://snehal.dev"), // Update when ready
+  title: "Snehal Fulluke | Senior Developer & Creative Technologist",
+  description: "B.Sc Computer Science Student specializing in Flutter Development, Game Creation, and Professional Cinematography. Exploring the intersection of code and visual art.",
+  keywords: ["Snehal Fulluke", "Flutter Developer", "Game Developer", "Photographer", "Video Editor", "Product Engineer"],
+  metadataBase: new URL("https://snehal.dev"),
   openGraph: {
-    title: "Snehal Fulluke | High-Fidelity Portfolio",
-    description: "App Developer, Game Creator, Photographer & Video Editor.",
+    title: "Snehal Fulluke | Portfolio",
+    description: "Creative Technologist bridging the gap between high-fidelity code and cinematic visual storytelling.",
+    url: "https://snehal.dev",
+    siteName: "Snehal Fulluke Portfolio",
     type: "website",
-    images: ["/og-image.png"], // Add an OG image to public/
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Snehal Fulluke Portfolio Preview",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Snehal Fulluke",
-    description: "Senior Developer & Visual Artist",
+    title: "Snehal Fulluke | Developer & Creator",
+    description: "Building the future of digital experiences through code and visuals.",
+    creator: "@snehalfulluke",
+  },
+  robots: {
+    index: true,
+    follow: true,
   }
 };
 
@@ -55,6 +72,8 @@ export default function RootLayout({
           </main>
           <Footer />
         </div>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

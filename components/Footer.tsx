@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Github, Twitter, Instagram, Linkedin, Heart, ArrowUp } from "lucide-react";
+import { Github, Twitter, Instagram, Linkedin, Heart, ArrowUp, MessageCircle } from "lucide-react";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -10,6 +10,14 @@ const Footer = () => {
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
+
+    const socials = [
+        { Icon: Github, href: "https://github.com/snehalfulluke2006" },
+        { Icon: Twitter, href: "https://twitter.com/snehalfulluke" },
+        { Icon: Instagram, href: "https://instagram.com/snehalfulluke1910" },
+        { Icon: Linkedin, href: "https://linkedin.com/in/snehalfulluke2006" },
+        { Icon: MessageCircle, href: "https://wa.me/918262945714" },
+    ];
 
     return (
         <footer className="py-20 border-t border-white/5 bg-background relative z-10 overflow-hidden">
@@ -28,10 +36,10 @@ const Footer = () => {
                         <p className="text-lg text-white/40 leading-relaxed font-medium mb-12">
                             Transforming complex technical concepts into world-class digital experiences. Available for creative collaborations worldwide.
                         </p>
-                        <div className="flex space-x-8">
-                            {[Github, Twitter, Instagram, Linkedin].map((Icon, i) => (
-                                <Link key={i} href="#" className="text-white/20 hover:text-white transition-all transform hover:scale-110 active:scale-90">
-                                    <Icon size={24} />
+                        <div className="flex space-x-6">
+                            {socials.map((social, i) => (
+                                <Link key={i} href={social.href} target="_blank" className="text-white/20 hover:text-white transition-all transform hover:scale-110 active:scale-90">
+                                    <social.Icon size={24} />
                                 </Link>
                             ))}
                         </div>
@@ -41,9 +49,14 @@ const Footer = () => {
                         <div className="space-y-6">
                             <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Navigation</h5>
                             <ul className="space-y-4">
-                                {["About", "Skills", "Projects", "Blog"].map(item => (
-                                    <li key={item}>
-                                        <Link href={`#${item.toLowerCase()}`} className="text-sm font-bold text-white/40 hover:text-white transition-colors">{item}</Link>
+                                {[
+                                    { name: "About", href: "/#about" },
+                                    { name: "Projects", href: "/#projects" },
+                                    { name: "Hire Page", href: "/hire" },
+                                    { name: "Blog Posts", href: "/blog" }
+                                ].map(item => (
+                                    <li key={item.name}>
+                                        <Link href={item.href} className="text-sm font-bold text-white/40 hover:text-white transition-colors">{item.name}</Link>
                                     </li>
                                 ))}
                             </ul>
@@ -51,9 +64,13 @@ const Footer = () => {
                         <div className="space-y-6">
                             <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Resources</h5>
                             <ul className="space-y-4">
-                                {["Guestbook", "Privacy", "Archive"].map(item => (
-                                    <li key={item}>
-                                        <Link href="#" className="text-sm font-bold text-white/40 hover:text-white transition-colors">{item}</Link>
+                                {[
+                                    { name: "Resume", href: "/resume" },
+                                    { name: "Guestbook", href: "/guestbook" },
+                                    { name: "Email Me", href: "mailto:snehalfulluke@gmail.com" }
+                                ].map(item => (
+                                    <li key={item.name}>
+                                        <Link href={item.href} className="text-sm font-bold text-white/40 hover:text-white transition-colors">{item.name}</Link>
                                     </li>
                                 ))}
                             </ul>

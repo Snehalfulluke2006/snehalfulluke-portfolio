@@ -2,10 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
-import { ArrowRight, Github, Instagram, Linkedin, Twitter } from "lucide-react";
+import { ArrowRight, Github, Instagram, Linkedin, Twitter, FileText, Download } from "lucide-react";
 import Link from "next/link";
 
-const roles = ["App Developer", "Game Developer", "Photographer", "Video Editor"];
+import Image from "next/image";
+
+const roles = [
+    "Flutter App Developer",
+    "Game Developer",
+    "Photographer",
+    "Video Editor"
+];
 
 const Hero = () => {
     const [index, setIndex] = useState(0);
@@ -17,152 +24,170 @@ const Hero = () => {
     const springX = useSpring(mouseX, { stiffness: 100, damping: 30 });
     const springY = useSpring(mouseY, { stiffness: 100, damping: 30 });
 
-    // Effect for mouse move listener
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             const { clientX, clientY } = e;
             mouseX.set(clientX);
             mouseY.set(clientY);
         };
-
         window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, [mouseX, mouseY]);
 
-        return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-        };
-    }, [mouseX, mouseY]); // mouseX and mouseY are stable motion values, but including them is good practice for clarity
-
-    // Effect for role rotation interval
     useEffect(() => {
         const timer = setInterval(() => {
             setIndex((prev) => (prev + 1) % roles.length);
         }, 3000);
-
-        return () => {
-            clearInterval(timer);
-        };
-    }, []); // Empty dependency array to run once and prevent re-creating the interval
+        return () => clearInterval(timer);
+    }, []);
 
     return (
-        <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden py-24 select-none">
-            {/* Interactive Mouse Glow */}
+        <section className="relative min-h-[110vh] flex flex-col items-center justify-center overflow-hidden py-32 select-none">
+            {/* Background Light Layers */}
             <motion.div
-                className="fixed inset-0 z-0 pointer-events-none opacity-40"
+                className="fixed inset-0 z-0 pointer-events-none opacity-50"
                 style={{
-                    background: `radial-gradient(600px circle at ${springX}px ${springY}px, rgba(99, 102, 241, 0.15), transparent 80%)`
+                    background: `radial-gradient(800px circle at ${springX}px ${springY}px, rgba(99, 102, 241, 0.1), transparent 80%)`
                 }}
             />
 
-            {/* Dynamic Background Blurs */}
+            {/* Mesh Background */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full animate-mesh opacity-30" />
-                <motion.div
-                    animate={{
-                        x: [0, 50, 0],
-                        y: [0, -50, 0],
-                        scale: [1, 1.1, 1]
-                    }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"
-                />
-                <motion.div
-                    animate={{
-                        x: [0, -30, 0],
-                        y: [0, 60, 0],
-                        scale: [1, 1.2, 1]
-                    }}
-                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"
-                />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full animate-mesh opacity-20" />
             </div>
 
-            <div className="container mx-auto px-6 relative z-10 text-center">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    className="inline-flex items-center space-x-2 px-6 py-2 rounded-full glass border-white/5 text-[10px] uppercase tracking-[0.4em] font-black text-white/40 mb-16"
-                >
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                    </span>
-                    <span>Open for Production — 2024</span>
-                </motion.div>
+            <div className="container mx-auto px-6 relative z-10">
+                <div className="flex flex-col items-center text-center">
 
-                <motion.div
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                >
-                    <h1 className="text-7xl md:text-[11rem] font-black tracking-tighter leading-[0.8] mb-12 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/10 text-glow">
-                        SNEHAL<br />FULLUKE
-                    </h1>
-                </motion.div>
-
-                <div className="h-12 md:h-16 flex items-center justify-center overflow-hidden mb-16 relative">
-                    <AnimatePresence mode="wait">
-                        <motion.p
-                            key={roles[index]}
-                            initial={{ y: 20, opacity: 0, filter: "blur(10px)" }}
-                            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                            exit={{ y: -20, opacity: 0, filter: "blur(10px)" }}
-                            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                            className="text-xl md:text-4xl font-black uppercase tracking-[0.2em] text-white/40 italic"
-                        >
-                            {roles[index]}
-                        </motion.p>
-                    </AnimatePresence>
-                </div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex flex-col sm:flex-row items-center justify-center space-y-6 sm:space-y-0 sm:space-x-8"
-                >
-                    <Link
-                        href="#projects"
-                        className="group relative px-12 py-5 rounded-2xl bg-white text-black font-black uppercase tracking-widest text-xs overflow-hidden transition-all hover:scale-105 active:scale-95 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]"
+                    {/* Brand Badge */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                        className="inline-flex items-center space-x-3 px-6 py-2.5 rounded-full glass border-white/10 text-[10px] uppercase tracking-[0.5em] font-black text-indigo-400 mb-12 shadow-2xl"
                     >
-                        <span className="relative z-10 flex items-center gap-3">
-                            Explore Works <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                         </span>
-                    </Link>
-                    <Link
-                        href="#contact"
-                        className="px-12 py-5 rounded-2xl glass border-white/5 font-black uppercase tracking-widest text-xs hover:bg-white/10 hover:border-white/20 transition-all active:scale-95"
-                    >
-                        Inquire Now
-                    </Link>
-                </motion.div>
+                        <span>Available for Projects</span>
+                    </motion.div>
 
-                {/* Floating Socials */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 1.2 }}
-                    className="mt-24 flex items-center justify-center space-x-12"
-                >
-                    {[Github, Linkedin, Twitter, Instagram].map((Icon, i) => (
-                        <Link
-                            key={i}
-                            href="#"
-                            className="group p-4 rounded-full glass border-white/5 hover:border-white/20 hover:text-white transition-all transform hover:-translate-y-2"
+                    {/* Main Headline */}
+                    <div className="relative mb-12">
+                        <motion.div
+                            initial={{ opacity: 0, y: 40 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                         >
-                            <Icon size={20} className="text-white/20 group-hover:text-white transition-colors" />
+                            <h2 className="text-sm md:text-xl font-medium tracking-[0.2em] text-white/40 uppercase mb-4 italic">
+                                Creative Developer & Visual Creator
+                            </h2>
+                            <h1 className="text-6xl md:text-[9rem] font-black tracking-tighter leading-[0.8] bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/20 text-glow">
+                                SNEHAL<br />FULLUKE
+                            </h1>
+                        </motion.div>
+                    </div>
+
+                    {/* Roles Engine */}
+                    <div className="h-10 md:h-16 flex items-center justify-center overflow-hidden mb-16 relative w-full">
+                        <AnimatePresence mode="wait">
+                            <motion.p
+                                key={roles[index]}
+                                initial={{ y: 20, opacity: 0, filter: "blur(10px)" }}
+                                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                                exit={{ y: -20, opacity: 0, filter: "blur(10px)" }}
+                                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                className="text-lg md:text-3xl font-black uppercase tracking-[0.3em] text-white/30"
+                            >
+                                {roles[index]}
+                            </motion.p>
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Primary Actions */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full max-w-2xl px-4"
+                    >
+                        <Link
+                            href="#projects"
+                            className="w-full sm:w-auto group relative px-10 py-5 rounded-2xl bg-white text-black font-black uppercase tracking-widest text-xs overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl hover:shadow-indigo-500/20"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-3">
+                                View Projects <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                            </span>
                         </Link>
-                    ))}
-                </motion.div>
+
+                        <Link
+                            href="/hire"
+                            className="w-full sm:w-auto px-10 py-5 rounded-2xl glass border-white/10 font-black uppercase tracking-widest text-xs hover:bg-white/5 hover:border-white/20 transition-all active:scale-95 flex items-center justify-center gap-3 bg-white/5"
+                        >
+                            Hire Agent
+                        </Link>
+
+                        <a
+                            href="/Snehal-Fulluke-Resume.pdf"
+                            download
+                            className="w-full sm:w-auto px-10 py-5 rounded-2xl glass border-white/10 font-black uppercase tracking-widest text-xs hover:bg-white/5 hover:border-white/20 transition-all active:scale-95 flex items-center justify-center gap-3 text-indigo-400"
+                        >
+                            <Download size={16} /> Resume
+                        </a>
+                    </motion.div>
+
+                    {/* Profile & Social Meta */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1, delay: 1.2 }}
+                        className="mt-24 flex flex-col items-center gap-10"
+                    >
+                        {/* Profile Image Support (Stylized Placeholder) */}
+                        <div className="relative group">
+                            <div className="absolute -inset-4 bg-indigo-500/20 to-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                            <div className="relative w-24 h-24 rounded-full glass border border-white/10 p-1.5 overflow-hidden ring-4 ring-white/5 ring-offset-4 ring-offset-black">
+                                <div className="w-full h-full rounded-full overflow-hidden relative grayscale hover:grayscale-0 transition-all duration-700">
+                                    <Image
+                                        src="/images/profile/snehal-fulluke.jpg"
+                                        alt="Snehal Fulluke"
+                                        fill
+                                        priority
+                                        className="object-cover scale-110 group-hover:scale-100 transition-transform duration-700"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center space-x-8">
+                            {[
+                                { Icon: Github, href: "https://github.com/snehalfulluke2006" },
+                                { Icon: Instagram, href: "https://instagram.com/snehalfulluke1910" },
+                                { Icon: Linkedin, href: "https://linkedin.com/in/snehalfulluke" },
+                                { Icon: Twitter, href: "https://twitter.com/snehalfulluke" }
+                            ].map((social, i) => (
+                                <Link
+                                    key={i}
+                                    href={social.href}
+                                    target="_blank"
+                                    className="p-3 rounded-full glass border-white/5 hover:border-white/20 hover:text-white transition-all transform hover:-translate-y-2 group"
+                                >
+                                    <social.Icon size={18} className="text-white/20 group-hover:text-white transition-colors" />
+                                </Link>
+                            ))}
+                        </div>
+                    </motion.div>
+                </div>
             </div>
 
-            {/* Dynamic Scroll Hint */}
+            {/* Vertical Rhythm Accent */}
             <motion.div
                 animate={{ y: [0, 10, 0] }}
                 transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                 className="absolute bottom-12 flex flex-col items-center gap-6"
             >
-                <div className="w-px h-24 bg-gradient-to-b from-white w-px to-transparent opacity-20" />
+                <div className="w-px h-16 bg-gradient-to-b from-white/20 to-transparent" />
             </motion.div>
         </section>
     );
