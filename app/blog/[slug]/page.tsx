@@ -4,8 +4,9 @@ import { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Calendar, Clock, Share2, Bookmark } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Share2, Bookmark, Twitter, Linkedin, MessageCircle } from "lucide-react";
 import React from "react";
+import { trackBlogView } from "@/lib/analytics";
 
 export async function generateStaticParams() {
     const posts = await getBlogPosts();
@@ -28,6 +29,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
             publishedTime: post.date,
             images: [post.image || "/og-image.png"],
         },
+        twitter: {
+            card: "summary_large_image",
+            title: post.title,
+            description: post.description,
+            images: [post.image || "/og-image.png"],
+        }
     };
 }
 
@@ -37,6 +44,8 @@ export default async function BlogPost({ params }: { params: { slug: string } })
     if (!post) {
         notFound();
     }
+
+    await trackBlogView(params.slug);
 
     return (
         <div className="pt-40 pb-32 min-h-screen">
@@ -49,12 +58,16 @@ export default async function BlogPost({ params }: { params: { slug: string } })
                         Back to Archive
                     </Link>
                     <div className="flex items-center gap-4">
-                        <button className="p-3 rounded-full glass border-white/10 hover:border-white/30 text-white/40 hover:text-white transition-all">
-                            <Bookmark size={18} />
-                        </button>
-                        <button className="p-3 rounded-full glass border-white/10 hover:border-white/30 text-white/40 hover:text-white transition-all">
-                            <Share2 size={18} />
-                        </button>
+                        <div className="text-[10px] font-black uppercase tracking-widest text-white/20 mr-2">Share</div>
+                        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://snehal.fulluke.me/blog/${post.slug}`)}`} target="_blank" className="p-3 rounded-full glass border-white/5 hover:text-indigo-400 transition-all">
+                            <Twitter size={14} />
+                        </a>
+                        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://snehal.fulluke.me/blog/${post.slug}`)}`} target="_blank" className="p-3 rounded-full glass border-white/5 hover:text-indigo-400 transition-all">
+                            <Linkedin size={14} />
+                        </a>
+                        <a href={`https://wa.me/?text=${encodeURIComponent(`${post.title} - https://snehal.fulluke.me/blog/${post.slug}`)}`} target="_blank" className="p-3 rounded-full glass border-white/5 hover:text-indigo-400 transition-all">
+                            <MessageCircle size={14} />
+                        </a>
                     </div>
                 </div>
 
@@ -67,14 +80,22 @@ export default async function BlogPost({ params }: { params: { slug: string } })
                         <span className="flex items-center gap-2 py-2 text-white/30"><Clock size={12} /> {post.readTime}</span>
                     </div>
 
-                    <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-16 text-glow">
+                    <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8 text-glow">
                         {post.title}
                     </h1>
+
+                    <div className="flex flex-wrap gap-3 mb-16">
+                        {(post as any).tags?.map((tag: string) => (
+                            <span key={tag} className="px-4 py-1.5 rounded-full glass border-white/5 text-[10px] font-black uppercase tracking-widest text-white/30">
+                                #{tag}
+                            </span>
+                        ))}
+                    </div>
 
                     <div className="flex items-center gap-6 mb-20 pb-16 border-b border-white/5">
                         <div className="w-14 h-14 rounded-2xl overflow-hidden glass border-white/10 relative">
                             <Image
-                                src={post.authorImage || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100"}
+                                src={post.authorImage || "/images/profile/snehal-fulluke.jpg"}
                                 alt={post.author || "Snehal Fulluke"}
                                 fill
                                 className="object-cover"
@@ -93,6 +114,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
                                 alt={post.title}
                                 fill
                                 className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                                priority
                             />
                         </div>
                     )}

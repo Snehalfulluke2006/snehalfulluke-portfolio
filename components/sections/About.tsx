@@ -4,6 +4,7 @@ import React from "react";
 import Section from "../Section";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { EditButton } from "@/components/EditUI";
 
 const About = () => {
     return (
@@ -48,10 +49,16 @@ const About = () => {
                     {/* Content Side */}
                     <div className="space-y-12">
                         <div>
-                            <h2 className="text-xs font-black tracking-[0.4em] uppercase text-indigo-500 mb-8">My Narrative</h2>
-                            <h3 className="text-4xl md:text-6xl font-black tracking-tighter leading-[1.1] mb-10">
-                                Bridging pixels with <span className="text-white/30 italic">perfected logic.</span>
-                            </h3>
+                            <div className="flex items-center gap-3 mb-8">
+                                <h2 className="text-xs font-black tracking-[0.4em] uppercase text-indigo-500">My Narrative</h2>
+                                <EditButton contentKey="about_tagline" currentValue="My Narrative" label="Edit" />
+                            </div>
+                            <div className="flex items-start gap-3 mb-10">
+                                <h3 className="text-4xl md:text-6xl font-black tracking-tighter leading-[1.1] flex-1">
+                                    Bridging pixels with <span className="text-white/30 italic">perfected logic.</span>
+                                </h3>
+                                <EditButton contentKey="about_headline" currentValue="Bridging pixels with perfected logic." label="Edit" className="flex-shrink-0 mt-2" />
+                            </div>
                             <div className="space-y-6 text-lg md:text-xl text-white/50 leading-relaxed font-medium">
                                 <p>
                                     I am <span className="text-white font-bold">Snehal Fulluke</span>, a Computer Science student driven by the desire to build digital experiences that are as beautiful as they are functional. My journey started with a curiosity for how games were built, which evolved into a professional pursuit of software engineering and visual arts.

@@ -92,7 +92,8 @@ const Photography = ({ photos }: PhotographyProps) => {
                 {/* Social Integration */}
                 <div className="mt-32 text-center">
                     <Link
-                        href="#"
+                        href="https://instagram.com/snehalfulluke1910"
+                        target="_blank"
                         className="group inline-flex items-center gap-4 px-12 py-5 rounded-2xl bg-white text-black hover:bg-indigo-500 hover:text-white transition-all font-black uppercase tracking-widest text-[10px] shadow-2xl"
                     >
                         <Instagram size={18} /> View Creative Archive <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />

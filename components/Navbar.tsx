@@ -5,8 +5,10 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
@@ -26,6 +28,12 @@ const Navbar = () => {
         { name: "Blog", href: "/blog" },
         { name: "Guestbook", href: "/guestbook" },
     ];
+
+    const isActive = (href: string) => {
+        if (href === "/") return pathname === "/";
+        if (href.startsWith("/#")) return pathname === "/";
+        return pathname.startsWith(href);
+    };
 
     return (
         <nav
@@ -52,10 +60,16 @@ const Navbar = () => {
                         <Link
                             key={link.name}
                             href={link.href}
-                            className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40 hover:text-white transition-all relative group"
+                            className={cn(
+                                "text-[10px] uppercase tracking-[0.2em] font-black transition-all relative group",
+                                isActive(link.href) ? "text-white" : "text-white/40 hover:text-white"
+                            )}
                         >
                             {link.name}
-                            <span className="absolute -bottom-1 left-0 w-0 h-px bg-indigo-500 transition-all duration-300 group-hover:w-full" />
+                            <span className={cn(
+                                "absolute -bottom-1 left-0 h-px bg-indigo-500 transition-all duration-300",
+                                isActive(link.href) ? "w-full" : "w-0 group-hover:w-full"
+                            )} />
                         </Link>
                     ))}
                     <Link

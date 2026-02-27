@@ -9,6 +9,9 @@ import ScrollProgress from "@/components/ScrollProgress";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import PageTransition from "@/components/PageTransition";
+import ScrollToTop from "@/components/ScrollToTop";
+import PublicLayoutShell from "@/components/PublicLayoutShell";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -61,19 +64,24 @@ export default function RootLayout({
           inter.variable
         )}
       >
-        <LoadingScreen />
-        <CustomCursor />
-        <ScrollProgress />
+        <PublicLayoutShell>
+          <LoadingScreen />
+          <CustomCursor />
+          <ScrollProgress />
 
-        <div className="relative flex min-h-screen flex-col">
-          <Navbar />
-          <main className="flex-1 transition-all duration-700 ease-[0.22, 1, 0.36, 1]">
-            {children}
-          </main>
-          <Footer />
-        </div>
-        <Analytics />
-        <SpeedInsights />
+          <div className="relative flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">
+              <PageTransition>
+                {children}
+              </PageTransition>
+            </main>
+            <Footer />
+          </div>
+          <ScrollToTop />
+          <Analytics />
+          <SpeedInsights />
+        </PublicLayoutShell>
       </body>
     </html>
   );

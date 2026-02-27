@@ -47,7 +47,7 @@ const Contact = () => {
                             </button>
 
                             <Link
-                                href="https://wa.me/#"
+                                href="https://wa.me/918262945714"
                                 target="_blank"
                                 className="group flex flex-col items-center gap-4 px-12 py-10 rounded-3xl glass border-white/5 hover:border-white/20 transition-all w-full md:w-80"
                             >
@@ -63,9 +63,9 @@ const Contact = () => {
 
                         <div className="flex items-center gap-12 justify-center">
                             {[
-                                { label: "Instagram", Icon: Instagram, href: "https://instagram.com/snehalfulluke" },
-                                { label: "LinkedIn", Icon: (props: any) => <span {...props} className="font-bold">in</span>, href: "https://linkedin.com/in/snehalfulluke" },
-                                { label: "GitHub", Icon: Github, href: "https://github.com/snehalfulluke" }
+                                { label: "Instagram", Icon: Instagram, href: "https://instagram.com/snehalfulluke1910" },
+                                { label: "LinkedIn", Icon: (props: any) => <span {...props} className="font-bold">in</span>, href: "https://linkedin.com/in/snehalfulluke1910" },
+                                { label: "GitHub", Icon: Github, href: "https://github.com/Snehalfulluke2006" }
                             ].map(({ label, Icon, href }, i) => (
                                 <Link
                                     key={i}

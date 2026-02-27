@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Github, Globe, Hash, Calendar, Layers } from "lucide-react";
+import { ArrowLeft, Github, Globe, Hash, Calendar, Share2, Twitter, Linkedin, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { Metadata } from "next";
+import { trackProjectClick } from "@/lib/analytics";
 
 interface ProjectPageProps {
     params: {
@@ -30,28 +31,63 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
             title: project.title,
             description: project.description,
             images: [project.image],
+            type: "article",
+            tags: project.tags,
+            section: project.category
         },
+        twitter: {
+            card: "summary_large_image",
+            title: project.title,
+            description: project.description,
+            images: [project.image],
+        }
     };
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
     const project = await getProjectBySlug(params.slug);
+    const allProjects = await getProjects();
 
     if (!project) {
         notFound();
     }
 
+    await trackProjectClick(params.slug);
+
+    const currentIndex = allProjects.findIndex(p => p.slug === params.slug);
+    const prevProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null;
+    const nextProject = currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
+
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const shareTitle = typeof window !== 'undefined' ? document.title : project.title;
+
     return (
         <article className="min-h-screen pt-40 pb-32">
             <div className="container mx-auto px-6 max-w-5xl">
-                {/* Back Link */}
-                <Link
-                    href="/#projects"
-                    className="group inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-16 text-sm font-black uppercase tracking-widest"
-                >
-                    <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                    Back to Portfolio
-                </Link>
+                <div className="flex justify-between items-center mb-16">
+                    {/* Back Link */}
+                    <Link
+                        href="/#projects"
+                        className="group inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm font-black uppercase tracking-widest"
+                    >
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                        Back to Portfolio
+                    </Link>
+
+                    {/* Quick Share */}
+                    <div className="flex items-center gap-4">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-white/20 mr-2">Share</div>
+                        <a href={`https://twitter.com/intent/tweet?text=${project.title}`} target="_blank" className="p-3 rounded-full glass border-white/5 hover:text-indigo-400 transition-all">
+                            <Twitter size={14} />
+                        </a>
+                        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`} target="_blank" className="p-3 rounded-full glass border-white/5 hover:text-indigo-400 transition-all">
+                            <Linkedin size={14} />
+                        </a>
+                        <a href={`https://wa.me/?text=${project.title}`} target="_blank" className="p-3 rounded-full glass border-white/5 hover:text-indigo-400 transition-all">
+                            <MessageCircle size={14} />
+                        </a>
+                    </div>
+                </div>
 
                 {/* Header Section */}
                 <div className="flex flex-col gap-12 mb-20">
@@ -106,7 +142,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
                 {/* Content Grid */}
                 <div className="grid lg:grid-cols-[1fr_300px] gap-24">
-                    <div className="prose prose-invert prose-lg max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-p:text-white/60 prose-strong:text-white prose-a:text-indigo-400">
+                    <div className="prose prose-invert prose-2xl max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-p:text-white/60 prose-strong:text-white prose-a:text-indigo-400">
                         <div className="grid md:grid-cols-2 gap-16 mb-24 not-prose">
                             <div className="space-y-6">
                                 <h3 className="text-xs font-black uppercase tracking-[0.4em] text-indigo-500">The Challenge</h3>
@@ -149,7 +185,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                                     <Link
                                         href={project.github}
                                         target="_blank"
-                                        className="w-full px-6 py-4 rounded-2xl glass border-white/10 font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:border-white/30 transition-all flex items-center"
+                                        className="w-full px-6 py-4 rounded-2xl glass border-white/10 font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:border-white/30 transition-all"
                                     >
                                         <Github size={16} /> Source Code
                                     </Link>
@@ -157,6 +193,30 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                             </div>
                         </div>
                     </aside>
+                </div>
+
+                {/* Project Navigation */}
+                <div className="mt-40 pt-20 border-t border-white/5 grid grid-cols-2 gap-8">
+                    {prevProject ? (
+                        <Link href={`/projects/${prevProject.slug}`} className="group p-10 rounded-[48px] glass border-white/5 hover:border-indigo-500/30 transition-all text-left">
+                            <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-white/30 mb-4 group-hover:text-indigo-400 transition-colors">
+                                <ChevronLeft size={14} /> Previous Project
+                            </div>
+                            <div className="text-2xl font-black tracking-tight group-hover:translate-x-2 transition-transform">{prevProject.title}</div>
+                        </Link>
+                    ) : (
+                        <div />
+                    )}
+                    {nextProject ? (
+                        <Link href={`/projects/${nextProject.slug}`} className="group p-10 rounded-[48px] glass border-white/5 hover:border-indigo-500/30 transition-all text-right">
+                            <div className="flex items-center justify-end gap-4 text-[10px] font-black uppercase tracking-widest text-white/30 mb-4 group-hover:text-indigo-400 transition-colors">
+                                Next Project <ChevronRight size={14} />
+                            </div>
+                            <div className="text-2xl font-black tracking-tight group-hover:-translate-x-2 transition-transform">{nextProject.title}</div>
+                        </Link>
+                    ) : (
+                        <div />
+                    )}
                 </div>
             </div>
         </article>

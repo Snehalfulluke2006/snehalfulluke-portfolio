@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { ArrowRight, Github, Instagram, Linkedin, Twitter, FileText, Download } from "lucide-react";
 import Link from "next/link";
-
 import Image from "next/image";
+import { EditButton } from "@/components/EditUI";
+import { useOwner } from "@/contexts/OwnerContext";
 
 const roles = [
     "Flutter App Developer",
@@ -16,6 +17,7 @@ const roles = [
 
 const Hero = () => {
     const [index, setIndex] = useState(0);
+    const { isOwner, isEditMode } = useOwner();
 
     // Mouse movement glow effect
     const mouseX = useMotionValue(0);
@@ -80,12 +82,17 @@ const Hero = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                         >
-                            <h2 className="text-sm md:text-xl font-medium tracking-[0.2em] text-white/40 uppercase mb-4 italic">
-                                Creative Developer & Visual Creator
-                            </h2>
-                            <h1 className="text-6xl md:text-[9rem] font-black tracking-tighter leading-[0.8] bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/20 text-glow">
-                                SNEHAL<br />FULLUKE
-                            </h1>
+                            <div className="flex items-center justify-center gap-3 mb-4">
+                                <h2 className="text-sm md:text-xl font-medium tracking-[0.2em] text-white/40 uppercase italic">
+                                    Creative Developer &amp; Visual Creator
+                                </h2>
+                                <EditButton contentKey="hero_tagline" currentValue="Creative Developer & Visual Creator" />
+                            </div>
+                            <div className="flex items-center justify-center gap-4">
+                                <h1 className="text-6xl md:text-[9rem] font-black tracking-tighter leading-[0.8] bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/20 text-glow">
+                                    SNEHAL<br />FULLUKE
+                                </h1>
+                            </div>
                         </motion.div>
                     </div>
 
@@ -137,6 +144,24 @@ const Hero = () => {
                         </a>
                     </motion.div>
 
+                    {/* Freelance Ribbon */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1, duration: 1 }}
+                        className="mt-12 group cursor-pointer"
+                    >
+                        <Link href="/hire" className="inline-flex items-center gap-4 px-6 py-3 rounded-full glass border-indigo-500/20 hover:border-indigo-500/50 transition-all duration-500">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                            </span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 group-hover:text-white transition-colors">
+                                Available for Freelance – 2026 Slots Open
+                            </span>
+                        </Link>
+                    </motion.div>
+
                     {/* Profile & Social Meta */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -162,9 +187,9 @@ const Hero = () => {
 
                         <div className="flex items-center space-x-8">
                             {[
-                                { Icon: Github, href: "https://github.com/snehalfulluke2006" },
+                                { Icon: Github, href: "https://github.com/Snehalfulluke2006" },
                                 { Icon: Instagram, href: "https://instagram.com/snehalfulluke1910" },
-                                { Icon: Linkedin, href: "https://linkedin.com/in/snehalfulluke" },
+                                { Icon: Linkedin, href: "https://linkedin.com/in/snehalfulluke1910" },
                                 { Icon: Twitter, href: "https://twitter.com/snehalfulluke" }
                             ].map((social, i) => (
                                 <Link

@@ -12,10 +12,10 @@ const Footer = () => {
     };
 
     const socials = [
-        { Icon: Github, href: "https://github.com/snehalfulluke2006" },
+        { Icon: Github, href: "https://github.com/Snehalfulluke2006" },
         { Icon: Twitter, href: "https://twitter.com/snehalfulluke" },
         { Icon: Instagram, href: "https://instagram.com/snehalfulluke1910" },
-        { Icon: Linkedin, href: "https://linkedin.com/in/snehalfulluke2006" },
+        { Icon: Linkedin, href: "https://linkedin.com/in/snehalfulluke1910" },
         { Icon: MessageCircle, href: "https://wa.me/918262945714" },
     ];
 

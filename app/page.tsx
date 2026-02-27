@@ -6,18 +6,33 @@ import Projects from "@/components/sections/Projects";
 import Timeline from "@/components/sections/Timeline";
 import Photography from "@/components/sections/Photography";
 import Services from "@/components/sections/Services";
+import Testimonials from "@/components/sections/Testimonials";
 import Contact from "@/components/sections/Contact";
 import { Metadata } from "next";
 
 import { getGalleryPhotos } from "@/lib/gallery";
+import { trackPageView } from "@/lib/analytics";
 
 export const metadata: Metadata = {
-  title: "Snehal Fulluke | Senior Developer & Visual Creator",
-  description: "B.Sc Computer Science student building premium digital experiences. Specialist in Flutter, Unity, and Cinematic Media.",
+  title: "Snehal Fulluke | Modern Portfolio",
+  description: "Senior Developer and Cinematic Creator crafting world-class digital experiences with Next.js, Flutter, and Motion Design.",
+  openGraph: {
+    title: "Snehal Fulluke - Developer & Creator",
+    description: "Bridging advanced engineering with cinematic visual storytelling.",
+    images: ["/images/profile/snehal-fulluke.jpg"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Snehal Fulluke | Portfolio",
+    description: "Senior Developer and Cinematic Creator.",
+    images: ["/images/profile/snehal-fulluke.jpg"],
+  }
 };
 
-export default function Home() {
+export default async function Home() {
   const photos = getGalleryPhotos();
+  await trackPageView("/");
 
   return (
     <div className="flex flex-col">
@@ -29,6 +44,7 @@ export default function Home() {
       <Projects />
       <Photography photos={photos} />
       <Services />
+      <Testimonials />
       <Contact />
     </div>
   );

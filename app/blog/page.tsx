@@ -6,6 +6,11 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Blog | Snehal Fulluke",
     description: "Deep dives into software engineering, game development, and the creative intersection of code and visual arts.",
+    openGraph: {
+        title: "Snehal Fulluke's Blog",
+        description: "Technical deep dives, creative philosophies, and experiments in motion and code.",
+        images: ["/images/profile/snehal-working.jpg"],
+    }
 };
 
 export default async function BlogPage() {
