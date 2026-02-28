@@ -13,13 +13,17 @@ export interface SiteContent {
 const OWNER_EMAIL = "snehalfulluke@gmail.com"
 
 function getAdminClient() {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceKey) {
+        throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured")
+    }
     return createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        serviceKey
     )
 }
 
-// Read a single content key (public)
+// Read a single content key (public read, uses service role for simplicity)
 export async function getSiteContent(key: string): Promise<string | null> {
     const supabase = getAdminClient()
     const { data } = await supabase
@@ -30,7 +34,7 @@ export async function getSiteContent(key: string): Promise<string | null> {
     return data?.value ?? null
 }
 
-// Read all content (public)
+// Read all content keys (public read)
 export async function getAllSiteContent(): Promise<Record<string, string>> {
     const supabase = getAdminClient()
     const { data } = await supabase.from("site_content").select("key, value")
@@ -38,16 +42,16 @@ export async function getAllSiteContent(): Promise<Record<string, string>> {
     return Object.fromEntries(data.map((row) => [row.key, row.value]))
 }
 
-// Save content — verifies owner session before writing
+// Write content — verifies owner session before any DB write
 export async function upsertSiteContent(
     key: string,
     value: string
 ): Promise<{ success?: boolean; error?: string }> {
     try {
-        // Verify caller is the authenticated owner
-        const serverSupabase = createServerSupabase()
-        const { data: { user } } = await (await serverSupabase).auth.getUser()
-        if (!user || user.email !== OWNER_EMAIL) {
+        // Double-layer guard: verify Supabase session independently of middleware
+        const serverSupabase = await createServerSupabase()
+        const { data: { user }, error: authError } = await serverSupabase.auth.getUser()
+        if (authError || !user || user.email !== OWNER_EMAIL) {
             return { error: "Unauthorized" }
         }
 

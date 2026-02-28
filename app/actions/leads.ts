@@ -2,6 +2,7 @@
 
 import { createClient } from "@supabase/supabase-js"
 import { revalidatePath } from "next/cache"
+import { requireOwner } from "@/lib/auth-guard"
 
 export type LeadStatus = "new" | "contacted" | "closed"
 
@@ -17,14 +18,26 @@ export interface Lead {
     created_at: string
 }
 
+/**
+ * Returns an admin Supabase client using the Service Role key.
+ * Throws clearly if the env var is missing rather than silently
+ * falling back to the anon key (which would have wrong permissions).
+ */
 function getAdminClient() {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceKey) {
+        throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured")
+    }
     return createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        serviceKey
     )
 }
 
-// ── Public: anyone can submit a lead from the hire page ──────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// PUBLIC: Anyone can submit a lead from the Hire page form.
+// No auth required — this is the intentional public write endpoint.
+// ─────────────────────────────────────────────────────────────────────────────
 export async function submitLead(formData: FormData) {
     const supabase = getAdminClient()
     const { error } = await supabase.from("leads").insert({
@@ -40,8 +53,13 @@ export async function submitLead(formData: FormData) {
     return { success: true }
 }
 
-// ── Studio: fetch all leads ───────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// OWNER-ONLY: All actions below require an active authenticated owner session.
+// requireOwner() throws "Unauthorized" if the session is absent or wrong email.
+// ─────────────────────────────────────────────────────────────────────────────
+
 export async function getLeads(): Promise<Lead[]> {
+    await requireOwner()
     const supabase = getAdminClient()
     const { data, error } = await supabase
         .from("leads")
@@ -51,8 +69,8 @@ export async function getLeads(): Promise<Lead[]> {
     return (data ?? []) as Lead[]
 }
 
-// ── Studio: update status ─────────────────────────────────────────────────────
 export async function updateLeadStatus(id: string, status: LeadStatus) {
+    await requireOwner()
     const supabase = getAdminClient()
     const { error } = await supabase
         .from("leads")
@@ -63,8 +81,8 @@ export async function updateLeadStatus(id: string, status: LeadStatus) {
     return { success: true }
 }
 
-// ── Studio: save notes ────────────────────────────────────────────────────────
 export async function saveLeadNote(id: string, notes: string) {
+    await requireOwner()
     const supabase = getAdminClient()
     const { error } = await supabase
         .from("leads")
@@ -75,8 +93,8 @@ export async function saveLeadNote(id: string, notes: string) {
     return { success: true }
 }
 
-// ── Studio: delete lead ───────────────────────────────────────────────────────
 export async function deleteLead(id: string) {
+    await requireOwner()
     const supabase = getAdminClient()
     const { error } = await supabase.from("leads").delete().eq("id", id)
     if (error) return { error: error.message }
@@ -84,8 +102,8 @@ export async function deleteLead(id: string) {
     return { success: true }
 }
 
-// ── Studio: count new leads ───────────────────────────────────────────────────
 export async function getNewLeadCount(): Promise<number> {
+    await requireOwner()
     const supabase = getAdminClient()
     const { count } = await supabase
         .from("leads")

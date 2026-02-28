@@ -1,17 +1,27 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js"
-
-// Use service-role key for analytics writes — bypasses RLS
-function getAdminClient() {
-    return createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-}
+import { requireOwner } from "@/lib/auth-guard"
 
 export type EventType = "page_view" | "project_click" | "hire_click" | "blog_view" | "contact_click"
 
+function getAdminClient() {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceKey) {
+        throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured")
+    }
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceKey
+    )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUBLIC: Fire-and-forget event write, called server-side from page renders.
+// No auth required — intentional public write with silent failure.
+// Service Role key is used server-side only (never reaches client bundle as
+// this function has "use server" directive and runs in the Node/Edge runtime).
+// ─────────────────────────────────────────────────────────────────────────────
 export async function insertAnalyticsEvent(
     event_type: EventType,
     page: string,
@@ -30,41 +40,52 @@ export async function insertAnalyticsEvent(
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// OWNER-ONLY: Dashboard aggregate query.
+// Requires active authenticated owner session.
+// ─────────────────────────────────────────────────────────────────────────────
 export async function getAnalyticsSummary() {
+    await requireOwner()
+
     try {
         const supabase = getAdminClient()
 
-        // Total page views
-        const { count: totalViews } = await supabase
-            .from("analytics_events")
-            .select("*", { count: "exact", head: true })
-            .eq("event_type", "page_view")
-
-        // Project clicks
-        const { count: projectClicks } = await supabase
-            .from("analytics_events")
-            .select("*", { count: "exact", head: true })
-            .eq("event_type", "project_click")
-
-        // Hire conversions
-        const { count: hireClicks } = await supabase
-            .from("analytics_events")
-            .select("*", { count: "exact", head: true })
-            .eq("event_type", "hire_click")
-
-        // Blog views
-        const { count: blogViews } = await supabase
-            .from("analytics_events")
-            .select("*", { count: "exact", head: true })
-            .eq("event_type", "blog_view")
-
-        // Top page (most visited)
-        const { data: topPageData } = await supabase
-            .from("analytics_events")
-            .select("page")
-            .eq("event_type", "page_view")
-            .order("created_at", { ascending: false })
-            .limit(100)
+        const [
+            { count: totalViews },
+            { count: projectClicks },
+            { count: hireClicks },
+            { count: blogViews },
+            { data: topPageData },
+            { data: recentEvents },
+        ] = await Promise.all([
+            supabase
+                .from("analytics_events")
+                .select("*", { count: "exact", head: true })
+                .eq("event_type", "page_view"),
+            supabase
+                .from("analytics_events")
+                .select("*", { count: "exact", head: true })
+                .eq("event_type", "project_click"),
+            supabase
+                .from("analytics_events")
+                .select("*", { count: "exact", head: true })
+                .eq("event_type", "hire_click"),
+            supabase
+                .from("analytics_events")
+                .select("*", { count: "exact", head: true })
+                .eq("event_type", "blog_view"),
+            supabase
+                .from("analytics_events")
+                .select("page")
+                .eq("event_type", "page_view")
+                .order("created_at", { ascending: false })
+                .limit(100),
+            supabase
+                .from("analytics_events")
+                .select("*")
+                .order("created_at", { ascending: false })
+                .limit(6),
+        ])
 
         let topPage = "/"
         if (topPageData && topPageData.length > 0) {
@@ -74,13 +95,6 @@ export async function getAnalyticsSummary() {
             })
             topPage = Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "/"
         }
-
-        // Recent events
-        const { data: recentEvents } = await supabase
-            .from("analytics_events")
-            .select("*")
-            .order("created_at", { ascending: false })
-            .limit(6)
 
         return {
             totalViews: totalViews ?? 0,
@@ -92,12 +106,8 @@ export async function getAnalyticsSummary() {
         }
     } catch {
         return {
-            totalViews: 0,
-            projectClicks: 0,
-            hireClicks: 0,
-            blogViews: 0,
-            topPage: "/",
-            recentEvents: [],
+            totalViews: 0, projectClicks: 0, hireClicks: 0,
+            blogViews: 0, topPage: "/", recentEvents: [],
         }
     }
 }
