@@ -10,7 +10,7 @@ import Testimonials from "@/components/sections/Testimonials";
 import Contact from "@/components/sections/Contact";
 import { Metadata } from "next";
 
-import { getGalleryPhotos } from "@/lib/gallery";
+import { getGalleryImages } from "@/app/actions/gallery";
 import { trackPageView } from "@/lib/analytics";
 
 export const metadata: Metadata = {
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const photos = getGalleryPhotos();
+  const photos = await getGalleryImages();
   try { await trackPageView("/") } catch { }
 
   return (

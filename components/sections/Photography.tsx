@@ -6,15 +6,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Maximize2, X, Instagram, Filter, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { GalleryPhoto } from "@/lib/gallery";
+import { GalleryImage } from "@/app/actions/gallery";
 
 interface PhotographyProps {
-    photos: GalleryPhoto[];
+    photos: GalleryImage[];
 }
 
 const Photography = ({ photos }: PhotographyProps) => {
     const categories = ["All", ...Array.from(new Set(photos.map(p => p.category)))];
-    const [selectedPhoto, setSelectedPhoto] = useState<null | GalleryPhoto>(null);
+    const [selectedPhoto, setSelectedPhoto] = useState<null | GalleryImage>(null);
     const [activeCategory, setActiveCategory] = useState<string>("All");
 
     const filteredWorks = useMemo(() => {
@@ -72,6 +72,7 @@ const Photography = ({ photos }: PhotographyProps) => {
                                         alt={work.title}
                                         width={1200}
                                         height={1600}
+                                        unoptimized
                                         className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col justify-end p-10">
@@ -130,6 +131,7 @@ const Photography = ({ photos }: PhotographyProps) => {
                                     src={selectedPhoto.image}
                                     alt={selectedPhoto.title}
                                     fill
+                                    unoptimized
                                     className="object-contain"
                                     priority
                                 />
