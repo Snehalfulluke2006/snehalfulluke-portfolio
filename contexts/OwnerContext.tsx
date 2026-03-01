@@ -37,11 +37,15 @@ export function useOwner() {
     return useContext(OwnerContext)
 }
 
+let _browserClient: ReturnType<typeof createClient> | null = null
 function getBrowserClient() {
-    return createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    if (!_browserClient) {
+        _browserClient = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+    }
+    return _browserClient
 }
 
 export function OwnerProvider({ children }: { children: React.ReactNode }) {
@@ -51,20 +55,26 @@ export function OwnerProvider({ children }: { children: React.ReactNode }) {
     const [editingValue, setEditingValue] = useState("")
     const [saving, setSaving] = useState(false)
 
-    // Detect owner session on mount
     useEffect(() => {
-        const supabase = getBrowserClient()
-
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setIsOwner(session?.user?.email === OWNER_EMAIL)
-        })
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setIsOwner(session?.user?.email === OWNER_EMAIL)
-            if (!session) setIsEditMode(false) // turn off edit mode on logout
-        })
-
-        return () => subscription.unsubscribe()
+        /**
+         * ONE-SHOT session check — no persistent WebSocket.
+         *
+         * onAuthStateChange() opens a long-lived WebSocket for REALTIME auth events.
+         * On public pages this WebSocket competes with page resources + the guestbook
+         * WebSocket, causing ERR_NETWORK_CHANGED and blocking page render.
+         *
+         * getSession() is a single HTTP request — resolves immediately from
+         * the local JWT stored in localStorage/cookies. No WebSocket opened.
+         */
+        getBrowserClient()
+            .auth.getSession()
+            .then(({ data: { session } }) => {
+                setIsOwner(session?.user?.email === OWNER_EMAIL)
+            })
+            .catch(() => {
+                // Supabase unavailable — owner stays false, page still renders
+                setIsOwner(false)
+            })
     }, [])
 
     const toggleEditMode = useCallback(() => {
@@ -86,14 +96,12 @@ export function OwnerProvider({ children }: { children: React.ReactNode }) {
         if (!editingKey) return
         setSaving(true)
         try {
-            // Import dynamically to keep client bundle lean
             const { upsertSiteContent } = await import("@/app/actions/content")
             const result = await upsertSiteContent(editingKey, editingValue)
             if (result.error) {
                 alert("Save failed: " + result.error)
             } else {
                 closeEditor()
-                // Trigger a soft refresh to reflect the new content
                 window.location.reload()
             }
         } finally {

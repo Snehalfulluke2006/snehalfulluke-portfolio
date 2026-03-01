@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Send, Clock, MessageSquare } from "lucide-react";
@@ -17,28 +17,47 @@ export default function GuestbookPage() {
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [loading, setLoading] = useState(true);
+    // Start loading=false — page renders immediately, data arrives asynchronously
+    const [loading, setLoading] = useState(false);
+    const [fetchError, setFetchError] = useState(false);
+    const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
     useEffect(() => {
         fetchEntries();
 
-        const channel = supabase
-            .channel("guestbook_changes")
-            .on(
-                "postgres_changes",
-                { event: "INSERT", schema: "public", table: "guestbook" },
-                (payload) => {
-                    setEntries((prev) => [payload.new as Entry, ...prev]);
-                }
-            )
-            .subscribe();
+        // Realtime: only subscribe if anon key is present (avoids error on missing env)
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder")) {
+            try {
+                const channel = supabase
+                    .channel("guestbook_changes")
+                    .on(
+                        "postgres_changes",
+                        { event: "INSERT", schema: "public", table: "guestbook" },
+                        (payload) => {
+                            setEntries((prev) => [payload.new as Entry, ...prev]);
+                        }
+                    )
+                    .subscribe();
+                channelRef.current = channel;
+            } catch {
+                // Realtime unavailable — silent fail, page still renders
+            }
+        }
 
         return () => {
-            supabase.removeChannel(channel);
+            if (channelRef.current) {
+                supabase.removeChannel(channelRef.current).catch(() => { });
+            }
         };
     }, []);
 
     const fetchEntries = async () => {
+        // Hard 5s safety timeout — loading state MUST resolve even on network failure
+        const safetyTimer = setTimeout(() => {
+            setLoading(false);
+            setFetchError(true);
+        }, 5000);
+
         try {
             const { data, error } = await supabase
                 .from("guestbook")
@@ -47,9 +66,11 @@ export default function GuestbookPage() {
 
             if (error) throw error;
             setEntries(data || []);
-        } catch (err) {
-            console.error("Error fetching guestbook:", err);
+            setFetchError(false);
+        } catch {
+            setFetchError(true);
         } finally {
+            clearTimeout(safetyTimer);
             setLoading(false);
         }
     };
@@ -65,11 +86,10 @@ export default function GuestbookPage() {
                 .insert([{ name, message }]);
 
             if (error) throw error;
-
             setMessage("");
             setName("");
-        } catch (err) {
-            console.error("Error submitting to guestbook:", err);
+        } catch {
+            // Silent fail — submission error shown via isSubmitting reset
         } finally {
             setIsSubmitting(false);
         }
@@ -147,9 +167,14 @@ export default function GuestbookPage() {
                             <div className="text-[10px] font-black uppercase tracking-widest text-white/20">{entries.length} Messages</div>
                         </div>
 
+                        {/* Render immediately — loading state is non-blocking */}
                         {loading ? (
                             <div className="py-20 text-center text-white/20 font-black uppercase tracking-widest animate-pulse">
                                 Accessing data layer...
+                            </div>
+                        ) : fetchError ? (
+                            <div className="py-20 text-center text-white/20 glass border-dashed border-white/10 rounded-[40px] font-black uppercase tracking-widest text-xs">
+                                Could not load messages.<br />Check your connection.
                             </div>
                         ) : entries.length === 0 ? (
                             <div className="py-32 text-center text-white/20 glass border-dashed border-white/10 rounded-[40px] font-black uppercase tracking-widest text-xs">
@@ -174,7 +199,7 @@ export default function GuestbookPage() {
                                                     <h4 className="font-black tracking-tight text-white mb-0.5">{entry.name}</h4>
                                                     <div className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 flex items-center gap-2">
                                                         <Clock size={10} />
-                                                        {new Date(entry.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        {new Date(entry.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                                                     </div>
                                                 </div>
                                             </div>
