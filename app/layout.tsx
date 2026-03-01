@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../styles/globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import LoadingScreen from "@/components/LoadingScreen";
 import ScrollProgress from "@/components/ScrollProgress";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import PageTransition from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
 import PublicLayoutShell from "@/components/PublicLayoutShell";
+import ConditionalPublicChrome from "@/components/ConditionalPublicChrome";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -65,22 +63,22 @@ export default function RootLayout({
         )}
       >
         <PublicLayoutShell>
+          {/* Public-only chrome: cursor, progress, scroll, analytics */}
           <LoadingScreen />
           <CustomCursor />
           <ScrollProgress />
-
-          <div className="relative flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">
-              <PageTransition>
-                {children}
-              </PageTransition>
-            </main>
-            <Footer />
-          </div>
           <ScrollToTop />
           <Analytics />
           <SpeedInsights />
+
+          {/*
+            ConditionalPublicChrome:
+            - Public routes  → wraps children in Navbar + PageTransition + Footer
+            - Studio routes  → passes children through directly (studio has its own layout shell)
+          */}
+          <ConditionalPublicChrome>
+            {children}
+          </ConditionalPublicChrome>
         </PublicLayoutShell>
       </body>
     </html>

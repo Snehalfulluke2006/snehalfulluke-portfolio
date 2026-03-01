@@ -1,9 +1,21 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "../../styles/globals.css";
 import { cn } from "@/lib/utils";
 import { DashboardHeader } from "./studio/components/DashboardHeader";
 import { Sidebar } from "./studio/components/Sidebar";
+
+/**
+ * Studio Layout — (studio) route group
+ *
+ * IMPORTANT: This layout does NOT emit <html> or <body>.
+ * The root app/layout.tsx already provides those.
+ * Emitting nested <html>/<body> here would cause:
+ *   - Hydration mismatch
+ *   - "removeChild: node is not a child" DOM errors
+ *   - Broken public pages due to React tree corruption
+ *
+ * This layout simply provides the sidebar + header flex shell.
+ */
 
 const inter = Inter({
     subsets: ["latin"],
@@ -26,23 +38,19 @@ export default function StudioLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" className="dark">
-            <body
-                className={cn(
-                    "min-h-screen bg-[#050505] text-white antialiased",
-                    inter.variable
-                )}
-            >
-                <div className="flex h-screen overflow-hidden">
-                    <Sidebar />
-                    <div className="flex flex-col flex-1 overflow-hidden">
-                        <DashboardHeader />
-                        <main className="flex-1 overflow-y-auto p-12">
-                            {children}
-                        </main>
-                    </div>
-                </div>
-            </body>
-        </html>
+        <div
+            className={cn(
+                "flex h-screen overflow-hidden bg-[#050505] text-white antialiased",
+                inter.variable
+            )}
+        >
+            <Sidebar />
+            <div className="flex flex-col flex-1 overflow-hidden">
+                <DashboardHeader />
+                <main className="flex-1 overflow-y-auto p-12">
+                    {children}
+                </main>
+            </div>
+        </div>
     );
 }
