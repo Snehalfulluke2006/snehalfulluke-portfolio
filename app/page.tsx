@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const photos = getGalleryPhotos();
-  await trackPageView("/");
+  try { await trackPageView("/") } catch { }
 
   return (
     <div className="flex flex-col">

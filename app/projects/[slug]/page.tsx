@@ -52,7 +52,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         notFound();
     }
 
-    await trackProjectClick(params.slug);
+    // Analytics: fire-and-forget — must never throw during SSG or page render
+    try { await trackProjectClick(params.slug) } catch { }
 
     const currentIndex = allProjects.findIndex(p => p.slug === params.slug);
     const prevProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null;

@@ -20,6 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default async function HirePage() {
-    await trackHireIntent("hire_page_view");
+    try { await trackHireIntent("hire_page_view") } catch { }
     return <HireClient />;
 }

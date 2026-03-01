@@ -45,7 +45,8 @@ export default async function BlogPost({ params }: { params: { slug: string } })
         notFound();
     }
 
-    await trackBlogView(params.slug);
+    // Analytics: fire-and-forget — must never throw during SSG or page render
+    try { await trackBlogView(params.slug) } catch { }
 
     return (
         <div className="pt-40 pb-32 min-h-screen">
