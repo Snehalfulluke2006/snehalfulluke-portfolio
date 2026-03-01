@@ -200,26 +200,36 @@ export default async function StudioDashboard() {
                         </div>
                     </div>
 
-                    {/* System Status */}
+                    {/* System Status — neutral, no hardcoded "Operational" labels */}
                     <div className="p-8 rounded-[32px] glass border-white/5 space-y-5 hover:border-white/10 transition-all">
                         <div className="text-[10px] font-black uppercase tracking-widest text-white/40">
                             System Status
                         </div>
-                        {[
-                            { label: "Vercel Platform", status: "Operational", color: "bg-emerald-400" },
-                            { label: "Supabase Analytics", status: "Live", color: "bg-emerald-400" },
-                            { label: "Middleware Auth", status: "Active", color: "bg-emerald-400" },
-                        ].map((sys, i) => (
-                            <div key={i} className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-2 h-2 rounded-full ${sys.color} animate-pulse`} />
-                                    <span className="text-xs font-bold">{sys.label}</span>
-                                </div>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-white/20">
-                                    {sys.status}
-                                </span>
-                            </div>
-                        ))}
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-indigo-400" />
+                            <span className="text-xs font-bold text-white/60">Monitoring</span>
+                        </div>
+                        <p className="text-[10px] text-white/20 font-medium leading-relaxed">
+                            Check{" "}
+                            <a
+                                href="https://status.vercel.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-indigo-400 hover:underline"
+                            >
+                                status.vercel.com
+                            </a>{" "}
+                            and{" "}
+                            <a
+                                href="https://status.supabase.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-indigo-400 hover:underline"
+                            >
+                                status.supabase.com
+                            </a>{" "}
+                            for live infrastructure health.
+                        </p>
                     </div>
                 </div>
             </div>

@@ -1,38 +1,16 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "../../styles/globals.css";
-import { cn } from "@/lib/utils";
-
-const inter = Inter({
-    subsets: ["latin"],
-    variable: "--font-inter",
-    weight: ["400", "700", "800", "900"],
-});
-
-export const metadata: Metadata = {
-    title: "Access Restricted",
-    robots: {
-        index: false,
-        follow: false,
-        nocache: true,
-    },
-};
-
+/**
+ * Auth Layout — app/(auth)/layout.tsx
+ *
+ * IMPORTANT: This layout must NOT emit <html> or <body>.
+ * The root app/layout.tsx already provides those for every route.
+ * Nested <html>/<body> causes hydration removeChild crashes.
+ *
+ * Robots noindex/nofollow is set per-page in sf-login/page.tsx metadata.
+ */
 export default function AuthLayout({
     children,
 }: {
-    children: React.ReactNode;
+    children: React.ReactNode
 }) {
-    return (
-        <html lang="en" className="dark">
-            <body
-                className={cn(
-                    "min-h-screen bg-[#050505] text-white antialiased",
-                    inter.variable
-                )}
-            >
-                {children}
-            </body>
-        </html>
-    );
+    return <>{children}</>
 }
