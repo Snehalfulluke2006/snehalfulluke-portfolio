@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js"
-import { requireOwner } from "@/lib/auth-guard"
+import { requireRole } from "@/app/actions/requireRole"
 import { revalidatePath } from "next/cache"
 
 const BUCKET_NAME = "gallery"
@@ -23,7 +23,7 @@ export interface GalleryImage {
 }
 
 export async function uploadGalleryImage(formData: FormData) {
-    await requireOwner()
+    await requireRole(["owner", "editor"])
 
     const file = formData.get("file") as File
     const category = formData.get("category") as string || "General"
@@ -67,7 +67,7 @@ export async function uploadGalleryImage(formData: FormData) {
 }
 
 export async function deleteGalleryImage(path: string) {
-    await requireOwner()
+    await requireRole(["owner", "editor"])
     const supabase = getAdminClient()
 
     try {

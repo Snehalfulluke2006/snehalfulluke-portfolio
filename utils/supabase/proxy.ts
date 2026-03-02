@@ -56,22 +56,35 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
-    // ── /studio/* — strictly owner-only ──────────────────────────────────────
+    const role = user?.user_metadata?.role || "viewer"
+    const isOwner = role === "owner"
+    const isEditor = role === "editor"
+    const isViewer = role === "viewer"
+    const isPrivileged = isOwner || isEditor || isViewer
+
+    // ── /studio/* — strictly privileged-only ──────────────────────────────────────
     if (request.nextUrl.pathname.startsWith("/studio")) {
         if (!user) {
             const url = request.nextUrl.clone()
             url.pathname = "/sf-login"
             return NextResponse.redirect(url)
         }
-        if (user.email !== OWNER_EMAIL) {
+        if (!isPrivileged) {
             const url = request.nextUrl.clone()
             url.pathname = "/"
             return NextResponse.redirect(url)
         }
+
+        // Settings, Users -> Owner only
+        if ((request.nextUrl.pathname.startsWith("/studio/settings") || request.nextUrl.pathname.startsWith("/studio/users")) && !isOwner) {
+            const url = request.nextUrl.clone()
+            url.pathname = "/studio"
+            return NextResponse.redirect(url)
+        }
     }
 
-    // ── /sf-login — redirect authenticated owner away ─────────────────────────
-    if (request.nextUrl.pathname === "/sf-login" && user?.email === OWNER_EMAIL) {
+    // ── /sf-login — redirect authenticated privileged user away ─────────────────────────
+    if (request.nextUrl.pathname === "/sf-login" && user && isPrivileged) {
         const url = request.nextUrl.clone()
         url.pathname = "/studio"
         return NextResponse.redirect(url)

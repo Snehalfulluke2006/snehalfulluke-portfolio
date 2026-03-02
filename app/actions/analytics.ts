@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js"
-import { requireOwner } from "@/lib/auth-guard"
+import { requireRole } from "@/app/actions/requireRole"
 
 export type EventType = "page_view" | "project_click" | "hire_click" | "blog_view" | "contact_click"
 
@@ -45,7 +45,7 @@ export async function insertAnalyticsEvent(
 // Requires active authenticated owner session.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function getAnalyticsSummary() {
-    await requireOwner()
+    await requireRole(["owner", "editor", "viewer"])
 
     try {
         const supabase = getAdminClient()

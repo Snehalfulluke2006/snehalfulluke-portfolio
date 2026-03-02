@@ -4,7 +4,7 @@ import fs from "fs"
 import path from "path"
 import matter from "gray-matter"
 import { revalidatePath } from "next/cache"
-import { requireOwner } from "@/lib/auth-guard"
+import { requireRole } from "@/app/actions/requireRole"
 
 const BLOG_PATH = path.join(process.cwd(), "content/blog")
 
@@ -23,7 +23,7 @@ export interface BlogSaveData {
 }
 
 export async function deleteBlogPost(slug: string) {
-    await requireOwner()
+    await requireRole(["owner", "editor"])
 
     // Validate slug to prevent path traversal
     if (!/^[a-z0-9-]+$/.test(slug)) {
@@ -47,7 +47,7 @@ export async function deleteBlogPost(slug: string) {
 }
 
 export async function saveBlogPost(data: BlogSaveData, isEdit: boolean) {
-    await requireOwner()
+    await requireRole(["owner", "editor"])
 
     // Validate slug
     if (!/^[a-z0-9-]+$/.test(data.slug)) {

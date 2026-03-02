@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { logout } from "../actions";
 import { getNewLeadCount } from "@/app/actions/leads";
+import { getUserRole } from "@/app/actions/requireRole";
 
 const baseMenuItems = [
     { label: "Overview", icon: BarChart3, href: "/studio" },
@@ -22,11 +23,17 @@ const baseMenuItems = [
     { label: "Projects", icon: Layout, href: "/studio/projects" },
     { label: "Gallery", icon: Image, href: "/studio/gallery" },
     { label: "Guestbook", icon: MessageSquare, href: "/studio/guestbook" },
+];
+
+const ownerItems = [
     { label: "Settings", icon: Settings, href: "/studio/settings" },
+    { label: "Users", icon: Users, href: "/studio/users" },
 ];
 
 export async function Sidebar() {
     const newLeadCount = await getNewLeadCount();
+    const role = await getUserRole();
+    const isOwner = role === "owner";
 
     return (
         <aside className="w-72 border-r border-white/5 flex flex-col p-8 space-y-12 flex-shrink-0">
@@ -59,6 +66,21 @@ export async function Sidebar() {
                                     {newLeadCount}
                                 </span>
                             )}
+                            <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                    </Link>
+                ))}
+                {isOwner && ownerItems.map((item) => (
+                    <Link
+                        key={item.label}
+                        href={item.href}
+                        className="flex items-center justify-between group p-3.5 rounded-2xl transition-all text-amber-400/60 hover:text-amber-400 hover:bg-amber-400/5 mt-4"
+                    >
+                        <div className="flex items-center gap-3">
+                            <item.icon size={18} />
+                            <span className="text-xs font-black uppercase tracking-widest">{item.label}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
                             <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                     </Link>

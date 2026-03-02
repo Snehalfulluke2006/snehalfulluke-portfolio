@@ -2,7 +2,7 @@
 
 import { createClient } from "@supabase/supabase-js"
 import { revalidatePath } from "next/cache"
-import { requireOwner } from "@/lib/auth-guard"
+import { requireRole } from "@/app/actions/requireRole"
 
 export type LeadStatus = "new" | "contacted" | "closed"
 
@@ -59,7 +59,7 @@ export async function submitLead(formData: FormData) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function getLeads(): Promise<Lead[]> {
-    await requireOwner()
+    await requireRole(["owner", "editor", "viewer"])
     const supabase = getAdminClient()
     const { data, error } = await supabase
         .from("leads")
@@ -70,7 +70,7 @@ export async function getLeads(): Promise<Lead[]> {
 }
 
 export async function updateLeadStatus(id: string, status: LeadStatus) {
-    await requireOwner()
+    await requireRole(["owner"])
     const supabase = getAdminClient()
     const { error } = await supabase
         .from("leads")
@@ -82,7 +82,7 @@ export async function updateLeadStatus(id: string, status: LeadStatus) {
 }
 
 export async function saveLeadNote(id: string, notes: string) {
-    await requireOwner()
+    await requireRole(["owner"])
     const supabase = getAdminClient()
     const { error } = await supabase
         .from("leads")
@@ -94,7 +94,7 @@ export async function saveLeadNote(id: string, notes: string) {
 }
 
 export async function deleteLead(id: string) {
-    await requireOwner()
+    await requireRole(["owner"])
     const supabase = getAdminClient()
     const { error } = await supabase.from("leads").delete().eq("id", id)
     if (error) return { error: error.message }
@@ -103,7 +103,7 @@ export async function deleteLead(id: string) {
 }
 
 export async function getNewLeadCount(): Promise<number> {
-    await requireOwner()
+    await requireRole(["owner", "editor", "viewer"])
     const supabase = getAdminClient()
     const { count } = await supabase
         .from("leads")

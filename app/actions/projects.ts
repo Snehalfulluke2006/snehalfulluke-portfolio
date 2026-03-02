@@ -4,7 +4,7 @@ import fs from "fs"
 import path from "path"
 import matter from "gray-matter"
 import { revalidatePath } from "next/cache"
-import { requireOwner } from "@/lib/auth-guard"
+import { requireRole } from "@/app/actions/requireRole"
 
 const PROJECTS_PATH = path.join(process.cwd(), "content/projects")
 
@@ -25,7 +25,7 @@ export interface ProjectSaveData {
 }
 
 export async function deleteProject(slug: string) {
-    await requireOwner()
+    await requireRole(["owner", "editor"])
 
     // Validate slug to prevent path traversal
     if (!/^[a-z0-9-]+$/.test(slug)) {
@@ -48,7 +48,7 @@ export async function deleteProject(slug: string) {
 }
 
 export async function saveProject(data: ProjectSaveData, isEdit: boolean) {
-    await requireOwner()
+    await requireRole(["owner", "editor"])
 
     // Prevent path traversal
     if (!/^[a-z0-9-]+$/.test(data.slug)) {
